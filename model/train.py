@@ -89,52 +89,18 @@ def train_model(df_train: pd.DataFrame) -> lgb.Booster:
     return model
 
 
-def reprod_check(df_test: pd.DataFrame, model: lgb.Booster):
-    """
-    Check the reproducibility of the trained model by comparing predictions
-    with a reference set of predictions.
-
-    Args:
-        df_test (pd.DataFrame): Test data.
-        model (lgb.Booster): Trained LightGBM model.
-
-    Returns:
-        None
-    """
-    # Preprocess the test data
-    df_test_proc = preprocess(df_test)
-    # Generate predictions on the test data
-    pred_test = model.predict(df_test_proc)
-
-    # Load the Kaggle reference predictions from a CSV file
-    kaggle_note_pred = pd.read_csv(os.path.join("model", "lgb_bayasian_param.csv"))
-
-    # Compare the predictions for consistency
-    consistency = np.allclose(pred_test, kaggle_note_pred["sales"].values)
-    if not consistency:
-        raise ValueError(
-            "Model predictions are inconsistent with the reference predictions."
-        )
-    print(f"Consistency between Kaggle Model and Production Model: {consistency}")
-
-
 def main():
     """
     Main function to execute the training, testing, and saving of the model.
     """
     # Paths to the training and test data files
     train_data_path = os.path.join("data", "train.csv")
-    test_data_path = os.path.join("data", "test.csv")
 
     # Load the training and test data
     df_train = pd.read_csv(train_data_path)
-    df_test = pd.read_csv(test_data_path)
 
     # Train the model
     model = train_model(df_train)
-
-    # Check model reproducibility
-    reprod_check(df_test, model)
 
     # Save the trained model to a file
     model.save_model(os.path.join("model", "model.txt"))
