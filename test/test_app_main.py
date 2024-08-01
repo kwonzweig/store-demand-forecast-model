@@ -59,8 +59,8 @@ def test_predict_invalid_date(test_client):
     response = test_client.post("/predict", json=request_body)
     assert response.status_code == 400
     assert (
-        response.json()["detail"]
-        == "Invalid date format. Please provide a valid date string."
+            response.json()["detail"]
+            == "Invalid date format. Please provide a valid date string."
     )
 
 
@@ -95,6 +95,28 @@ def test_predict_out_of_range(test_client):
         "date": "1800-07-31",
         "store": 100,  # Store ID not in training set
         "item": 1000,  # Item ID not in training set
+    }
+
+    response = test_client.post("/predict", json=request_body)
+    assert response.status_code == 200
+    assert "sales" in response.json()
+    assert isinstance(response.json()["sales"], float)
+
+
+def test_predict_int_date(test_client):
+    """
+    Test the /predict endpoint with a request body containing an integer date
+    to see if FastAPI coerce the int into str properly.
+
+
+    Args:
+        test_client (TestClient): The test client for the FastAPI app.
+    """
+    # Define a request body with the wrong format
+    request_body = {
+        "date": 20240731,  # Date is an integer
+        "store": 1,
+        "item": 1,
     }
 
     response = test_client.post("/predict", json=request_body)
