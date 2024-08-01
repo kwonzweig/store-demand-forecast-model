@@ -82,4 +82,4 @@ A pretrained model is already provided as model.pkl, but you can run the trainin
    ```bash
    python model/train.py
    ```
-   This will train the model and save it as `model/model.txt`.
+   This will train the model and save it as `model/model.pkl`.
