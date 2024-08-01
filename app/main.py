@@ -1,57 +1,98 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+import os
+
 import lightgbm as lgb
 import pandas as pd
-import datetime
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 from model.data_prep import preprocess
 
 app = FastAPI()
 
 
-# Define a Pydantic model for the request body
 class PredictionRequest(BaseModel):
+    """
+    Pydantic model for the prediction request body.
+
+    Attributes:
+        date (str): The date of the prediction. Can be in multiple formats
+            (e.g., "YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY").
+        store (int): The store identifier.
+        item (int): The item identifier.
+    """
     date: str
     store: int
     item: int
 
 
-# Load the trained model
-model = lgb.Booster(model_file='model.txt')
+class PredictionResponse(BaseModel):
+    """
+    Pydantic model for the prediction response.
+
+    Attributes:
+        sales (float): The predicted sales value.
+    """
+    sales: float
 
 
-# Define the /predict endpoint
-@app.post("/predict")
-def predict(request: PredictionRequest):
+# Load the trained LightGBM model
+model = lgb.Booster(model_file=os.path.join('model', 'model.txt'))
+
+
+@app.post("/predict", response_model=PredictionResponse)
+def predict(request: PredictionRequest) -> PredictionResponse:
+    """
+    Predict sales based on the provided store, item, and date.
+
+    Args:
+        request (PredictionRequest): The prediction request containing date, store, and item.
+
+    Returns:
+        PredictionResponse: The response containing the predicted sales.
+
+    Raises:
+        HTTPException: If the date format is invalid or model prediction fails.
+    """
     # Parse the date and create features
     try:
         date = pd.to_datetime(request.date)
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+        raise HTTPException(status_code=400, detail="Invalid date format. Please provide a valid date string.")
 
+    # Prepare the data for prediction
     data = {
         "store": request.store,
         "item": request.item,
-        "month": date.month,
-        "day": date.dayofweek,
-        "year": date.year
+        "date": date,
     }
 
     df = pd.DataFrame([data])
 
+    # Preprocess the data
     df_proc = preprocess(df)
 
-    # Make a prediction
+    # Make a prediction using the model
     try:
         prediction = model.predict(df_proc)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Model prediction failed.")
 
     # Return the prediction as a response
-    return {"sales": prediction[0]}
+    return PredictionResponse(sales=prediction[0])
 
 
-# Define the /status endpoint
 @app.get("/status")
-def status():
+def status() -> dict:
+    """
+    Check the status of the API.
+
+    Returns:
+        dict: A dictionary indicating that the API is running.
+    """
     return {"status": "API is running"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

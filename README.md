@@ -42,7 +42,7 @@ This part can be skipped as the model artifact is already provided in the reposi
    ```
    python model/train.py
    ```
-   This will train the model and save it as `model.txt` in `model/` directory.
+   This will train the model and save it as `model/model.txt`.
 
 ### Running the API
 
@@ -73,9 +73,16 @@ This part can be skipped as the model artifact is already provided in the reposi
   - **Response**:
     ```json
     {
-      "sales": 100 <- Change this to actual output later on
+      "sales": 9.053297510226828
     }
     ```
 
 - **`/status`** (GET): Check the status of the API.
+  - **Response**:
+    ```json
+    {
+      "status": "API is running"
+    }
+    ```
+
 

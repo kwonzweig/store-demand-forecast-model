@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from data_prep import preprocess
+from .data_prep import preprocess
 
 
 def pre_tuned_model(
@@ -29,7 +29,7 @@ def pre_tuned_model(
         "task": "train",
         "boosting_type": "gbdt",
         "objective": "regression_l1",
-        "metric": "mape",  # this is abs(a-e)/max(1,a)
+        "metric": "mape",
         "num_leaves": 64,
         "learning_rate": 0.2,
         "feature_fraction": 0.9,
@@ -106,8 +106,8 @@ def reprod_check(df_test: pd.DataFrame, model: lgb.Booster):
     # Generate predictions on the test data
     pred_test = model.predict(df_test_proc)
 
-    # Load the reference predictions from a CSV file
-    kaggle_note_pred = pd.read_csv("lgb_bayasian_param_kaggle.csv")
+    # Load the Kaggle reference predictions from a CSV file
+    kaggle_note_pred = pd.read_csv(os.path.join("model", "lgb_bayasian_param.csv"))
 
     # Compare the predictions for consistency
     consistency = np.allclose(pred_test, kaggle_note_pred["sales"].values)
@@ -123,8 +123,8 @@ def main():
     Main function to execute the training, testing, and saving of the model.
     """
     # Paths to the training and test data files
-    train_data_path = os.path.join("..", "data", "train.csv")
-    test_data_path = os.path.join("..", "data", "test.csv")
+    train_data_path = os.path.join("data", "train.csv")
+    test_data_path = os.path.join("data", "test.csv")
 
     # Load the training and test data
     df_train = pd.read_csv(train_data_path)
@@ -137,7 +137,7 @@ def main():
     reprod_check(df_test, model)
 
     # Save the trained model to a file
-    model.save_model("model.txt")
+    model.save_model(os.path.join("model", "model.txt"))
     print("Model trained and saved as model.txt")
 
 
