@@ -20,6 +20,7 @@ class PredictionRequest(BaseModel):
         store (int): The store identifier.
         item (int): The item identifier.
     """
+
     date: str
     store: int
     item: int
@@ -32,11 +33,12 @@ class PredictionResponse(BaseModel):
     Attributes:
         sales (float): The predicted sales value.
     """
+
     sales: float
 
 
 # Load the trained LightGBM model
-model = lgb.Booster(model_file=os.path.join('model', 'model.txt'))
+model = lgb.Booster(model_file=os.path.join("model", "model.txt"))
 
 
 @app.post("/predict", response_model=PredictionResponse)
@@ -57,7 +59,10 @@ def predict(request: PredictionRequest) -> PredictionResponse:
     try:
         date = pd.to_datetime(request.date)
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid date format. Please provide a valid date string.")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid date format. Please provide a valid date string.",
+        )
 
     # Prepare the data for prediction
     data = {

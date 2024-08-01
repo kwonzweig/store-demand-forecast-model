@@ -38,11 +38,7 @@ def test_predict_valid(test_client):
         test_client (TestClient): The test client for the FastAPI app.
     """
     # Define a valid request body
-    request_body = {
-        "date": "2024-07-31",
-        "store": 1,
-        "item": 1
-    }
+    request_body = {"date": "2024-07-31", "store": 1, "item": 1}
 
     response = test_client.post("/predict", json=request_body)
     assert response.status_code == 200
@@ -58,15 +54,14 @@ def test_predict_invalid_date(test_client):
         test_client (TestClient): The test client for the FastAPI app.
     """
     # Define a request body with an invalid date
-    request_body = {
-        "date": "31-07-202",
-        "store": 1,
-        "item": 1
-    }
+    request_body = {"date": "31-07-202", "store": 1, "item": 1}
 
     response = test_client.post("/predict", json=request_body)
     assert response.status_code == 400
-    assert response.json()["detail"] == "Invalid date format. Please provide a valid date string."
+    assert (
+        response.json()["detail"]
+        == "Invalid date format. Please provide a valid date string."
+    )
 
 
 def test_predict_missing_fields(test_client):
@@ -99,7 +94,7 @@ def test_predict_out_of_range(test_client):
     request_body = {
         "date": "1800-07-31",
         "store": 100,  # Store ID not in training set
-        "item": 1000   # Item ID not in training set
+        "item": 1000,  # Item ID not in training set
     }
 
     response = test_client.post("/predict", json=request_body)

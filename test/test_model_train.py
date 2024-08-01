@@ -1,7 +1,8 @@
 import os
-import pytest
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+import pytest
 from lightgbm import Booster
 
 from model.data_prep import preprocess
@@ -62,9 +63,13 @@ def test_reprod_check(trained_model: Booster, test_data: pd.DataFrame):
     kaggle_note_pred = pd.read_csv(reference_pred_path)
 
     # Ensure the reference predictions are loaded correctly
-    assert "sales" in kaggle_note_pred.columns, "Reference predictions must contain 'sales' column."
+    assert (
+        "sales" in kaggle_note_pred.columns
+    ), "Reference predictions must contain 'sales' column."
 
     # Compare the predictions for consistency
     consistency = np.allclose(pred_test, kaggle_note_pred["sales"].values)
-    assert consistency, "Model predictions are inconsistent with the reference predictions."
+    assert (
+        consistency
+    ), "Model predictions are inconsistent with the reference predictions."
     print(f"Consistency between Kaggle Model and Production Model: {consistency}")
