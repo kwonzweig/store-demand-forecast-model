@@ -72,4 +72,4 @@ def test_reprod_check(trained_model: Booster, test_data: pd.DataFrame):
     assert (
         consistency
     ), "Model predictions are inconsistent with the reference predictions."
-    print(f"Consistency between Kaggle Model and Production Model: {consistency}")
+    print(f"Reproducibility from Kaggle Model to Production Model: {consistency}")
