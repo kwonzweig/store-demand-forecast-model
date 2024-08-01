@@ -22,10 +22,33 @@ jobs:
       - name: Build Docker image
         run: docker build -t forecast-model-api .
 
-      - name: Run tests
+      - name: Run PyTest
         run: |
           docker run --rm forecast-model-api /bin/sh -c "pytest"
 
-      - name: Run Docker
+      - name: Start Docker container
         run: |
-          docker run -p 8000:8000 forecast-model-api
+          docker run -d -p 8000:8000 --name forecast-api forecast-model-api
+
+      - name: Test /status endpoint
+        run: |
+          sleep 5 # Wait for the service to start
+          response=$(curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:8000/status)
+          if [ "$response" -ne 200 ]; then
+            echo "Error: /status endpoint returned HTTP status $response"
+            exit 1
+          fi
+          echo "Success: /status endpoint returned HTTP status $response"
+
+      - name: Test /predict endpoint with valid input
+        run: |
+          response=$(curl -X POST -H "Content-Type: application/json" -d '{"date": "2024-07-31", "store": 1, "item": 1}' --write-out "%{http_code}" --silent --output /dev/null http://localhost:8000/predict)
+          if [ "$response" -ne 200 ]; then
+            echo "Error: /predict endpoint returned HTTP status $response"
+            exit 1
+          fi
+          echo "Success: /predict endpoint returned HTTP status $response"
+
+      - name: Stop Docker container
+        if: success()
+        run: docker stop forecast-api
