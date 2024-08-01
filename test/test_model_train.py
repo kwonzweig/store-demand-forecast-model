@@ -5,8 +5,7 @@ import pandas as pd
 import pytest
 from lightgbm import Booster
 
-from model.data_prep import preprocess
-from model.train import train_model
+from model.train import train_model, preprocess
 
 
 @pytest.fixture(scope="module")

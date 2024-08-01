@@ -72,7 +72,7 @@ This page provides instructions on how to run the API.
 
 ## Training the Model
 
-A pretrained model is already provided, but you can run the training script to update the model registry.
+A pretrained model is already provided as model.pkl, but you can run the training script to update the model registry.
 
 1. **Prepare the dataset**:
 

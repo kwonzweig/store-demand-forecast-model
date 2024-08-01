@@ -1,11 +1,11 @@
 import os
 
-import lightgbm as lgb
+import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from model.data_prep import preprocess
+from model.train import preprocess
 
 app = FastAPI()
 
@@ -38,7 +38,7 @@ class PredictionResponse(BaseModel):
 
 
 # Load the trained LightGBM model
-model = lgb.Booster(model_file=os.path.join("model", "model.txt"))
+model = joblib.load(os.path.join('model', 'model.pkl'))
 
 
 @app.post("/predict", response_model=PredictionResponse)
