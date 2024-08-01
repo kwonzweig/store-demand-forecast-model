@@ -25,3 +25,7 @@ jobs:
       - name: Run tests
         run: |
           docker run --rm forecast-model-api /bin/sh -c "pytest"
+
+      - name: Run Docker
+        run: |
+          docker run -p 8000:8000 forecast-model-api
